@@ -5,16 +5,16 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638819175704506788
-    m_Hash: 3852304078
+      ticks: 638819179507473827
+    m_Hash: 75307366
   m_LockFileStatus:
     m_FilePath: C:/Users/rodyc/source/repos/GameProj1/GameProj1/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638819175704563657
-    m_Hash: 2922194657
+      ticks: 638819179507473827
+    m_Hash: 3876080132
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_LocalPackages:
