@@ -1,3 +1,5 @@
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class playerController : MonoBehaviour
@@ -5,6 +7,11 @@ public class playerController : MonoBehaviour
     [Header("*** Components ***")]
     [SerializeField] LayerMask ignoreLayer;
     [SerializeField] CharacterController controller;
+    [Header("*** Stats ***")]
+    public float HP;
+    public float MaxHP;
+    public float SP;
+    public float MaxSP;
 
     [Header("*** Movement ***")]
     [SerializeField] int playerSpeed;
@@ -17,10 +24,15 @@ public class playerController : MonoBehaviour
 
     Vector3 playerMoveDir;
     Vector3 playerVelocity;
+
+    bool isSprinting;
+    bool staminaIsUpdating;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        MaxHP = HP;
+        MaxSP = SP;
+        gamemanager.instance.updatePlayerUI();
     }
 
     // Update is called once per frame
@@ -46,6 +58,7 @@ public class playerController : MonoBehaviour
         controller.Move(playerVelocity * Time.deltaTime);
 
         Sprint();
+        HandleStamina();
         controller.Move(playerMoveDir * playerSpeed * Time.deltaTime);
     }
 
@@ -59,13 +72,44 @@ public class playerController : MonoBehaviour
 
     void Sprint()
     {
-        if(Input.GetButtonDown("Sprint"))
+        if(Input.GetButtonDown("Sprint") && SP > 1)
         {
+            isSprinting = true;
             playerSpeed *= playerSprintMod;
         }
-        if (Input.GetButtonUp("Sprint"))
+        if (Input.GetButtonUp("Sprint") && isSprinting)
         {
-            playerSpeed /= playerSprintMod;
+            StopSprinting();
+        }
+
+    }
+    void StopSprinting()
+    {
+        isSprinting = false;
+        playerSpeed /= playerSprintMod;
+    }
+
+    void HandleStamina()
+    {
+        if (isSprinting && SP > 0)
+        {
+            SP -= 1 * Time.deltaTime;
+            if (SP < 0)
+                SP = 0;
+            gamemanager.instance.updatePlayerUI();
+        }
+        else if (!isSprinting && SP < MaxSP)
+        {
+            SP += 1 * Time.deltaTime;
+            if (SP > MaxSP)
+                SP = MaxSP;
+            gamemanager.instance.updatePlayerUI();
+        }
+        else if (isSprinting && SP <= 0)
+        {
+            StopSprinting();
         }
     }
+
+
 }
