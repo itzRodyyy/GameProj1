@@ -2,7 +2,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class playerController : MonoBehaviour
+public class playerController : MonoBehaviour, iPickup
 {
     [Header("*** Components ***")]
     [SerializeField] LayerMask ignoreLayer;
@@ -20,6 +20,10 @@ public class playerController : MonoBehaviour
     [SerializeField] int playerJumpMax;
     [SerializeField] int gravity;
 
+    [Header("*** Shoot ***")]
+    [SerializeField] GameObject weaponModel;
+    [SerializeField] weaponStats weapon;
+
     int playerJumpCount;
 
     Vector3 playerMoveDir;
@@ -27,6 +31,8 @@ public class playerController : MonoBehaviour
 
     bool isSprinting;
     bool staminaIsUpdating;
+
+    float attackTimer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -38,7 +44,10 @@ public class playerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * weapon.range, Color.red);
         Movement();
+        attackTimer += Time.deltaTime;
+        Shoot();
     }
 
 
@@ -111,5 +120,58 @@ public class playerController : MonoBehaviour
         }
     }
 
+    void Shoot()
+    {
+        if (weapon.isMelee)
+        {
+            if (Input.GetButtonDown("Fire1") && attackTimer >= weapon.attackRate)
+            {
+                attackTimer = 0;
+                CheckCollision();
+            }
+        }
+        else
+        {
+            if (weapon.isAutomatic)
+            {
+                if (Input.GetButton("Fire1") && attackTimer >= weapon.attackRate && weapon.currentAmmo > 0)
+                {
+                    attackTimer = 0;
+                    CheckCollision();
+                    weapon.currentAmmo--;
+                }
+            } 
+            else
+            {
+                if (Input.GetButtonDown("Fire1") && attackTimer >= weapon.attackRate && weapon.currentAmmo > 0)
+                {
+                    attackTimer = 0;
+                    CheckCollision();
+                    weapon.currentAmmo--;
+                }
+            }
+        }
+    }
 
+    void CheckCollision()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, weapon.range, ~ignoreLayer))
+        {
+            Debug.Log(hit.collider.name);
+            iDamage dmg = hit.collider.GetComponent<iDamage>();
+            if (dmg != null)
+            {
+                dmg.takeDmg(weapon.damage);
+            }
+        }
+    }
+
+    public void GetWeapon(weaponStats _weapon)
+    {
+        weapon = _weapon;
+        weaponModel.transform.localScale = weapon.model.transform.lossyScale;
+        weaponModel.GetComponent<MeshFilter>().sharedMesh = weapon.model.GetComponent<MeshFilter>().sharedMesh;
+        weaponModel.GetComponent<MeshRenderer>().sharedMaterial = weapon.model.GetComponent<MeshRenderer>().sharedMaterial;
+    }
 }

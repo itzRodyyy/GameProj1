@@ -43,8 +43,8 @@ public class gamemanager : MonoBehaviour
 
     public void updatePlayerUI()
     {
-        playerHPBar.fillAmount = (float)script.HP / script.MaxHP;
-        playerSPBar.fillAmount = (float)script.SP / script.MaxSP;
+        playerHPBar.fillAmount = script.HP / script.MaxHP;
+        playerSPBar.fillAmount = script.SP / script.MaxSP;
     }
 
     public void statePause()
